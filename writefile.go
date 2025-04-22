@@ -17,7 +17,10 @@
 
 package renameio
 
-import "os"
+import (
+	"io"
+	"os"
+)
 
 // WriteFile mirrors ioutil.WriteFile, replacing an existing file with the same
 // name atomically.
@@ -38,4 +41,25 @@ func WriteFile(filename string, data []byte, perm os.FileMode, opts ...Option) e
 	}
 
 	return t.CloseAtomicallyReplace()
+}
+
+// WriteFileReader write to a tmp file replacing an existing file with the same name atomically.
+func WriteFileReader(filename string, reader io.Reader, perm os.FileMode, opts ...Option) (int64, error) {
+	opts = append([]Option{
+		WithPermissions(perm),
+		WithExistingPermissions(),
+	}, opts...)
+
+	t, err := NewPendingFile(filename, opts...)
+	if err != nil {
+		return 0, err
+	}
+	defer t.Cleanup()
+
+	written, err := io.Copy(t, reader)
+	if err != nil {
+		return 0, err
+	}
+
+	return written, t.CloseAtomicallyReplace()
 }
