@@ -6,7 +6,7 @@ package maybe
 import (
 	"os"
 
-	"github.com/google/renameio/v2"
+	"github.com/mymatsubara/renameio/v2"
 )
 
 // WriteFile mirrors ioutil.WriteFile. On Linux it uses renameio.WriteFile to
